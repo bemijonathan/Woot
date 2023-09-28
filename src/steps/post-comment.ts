@@ -1,15 +1,14 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 
-async function getChanges(pullRequestNumber: number) {
+export async function postComment(pullRequestNumber: number, summary: string) {
     const githubToken = core.getInput("token");
     const octokit = github.getOctokit(githubToken);
     const repo = github.context.repo;
 
-    const { data: files } = await octokit.pulls.listFiles({
+    const { data } = await octokit.rest.pulls.update({
         ...repo,
         pull_number: pullRequestNumber,
+        body: summary
     });
-
-    return files;
 }
