@@ -1,29 +1,50 @@
 import * as core from '@actions/core'
-import { wait } from './wait'
-
+import * as github from '@actions/github'
+import { getChanges, postComment, summarizeChanges } from './steps/index.js'
+import dotenv from 'dotenv'
+import { Logger } from './utils.js'
+dotenv.config()
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 export async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
+    // Extract the PR number from the GitHub context
+    const pullRequestNumber = github.context.payload.pull_request?.number
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    Logger.log('pullRequestNumber', pullRequestNumber)
+    Logger.log('github.context', github.context)
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    // If the PR number is not found, exit the action
+    if (!pullRequestNumber) {
+      Logger.warn('Could not get pull request number from context, exiting')
+      return
+    }
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    // Get the changes in the PR
+    const changes = await getChanges(pullRequestNumber)
+
+    if (!changes) {
+      Logger.warn('Could not get changes, exiting')
+      return
+    }
+
+    // Summarize the changes
+    const summary = await summarizeChanges(changes)
+
+    if (!summary) {
+      Logger.warn('Could not summarize changes, exiting')
+      return
+    }
+
+    // Post the summary as a comment
+    await postComment(pullRequestNumber, summary)
   } catch (error) {
-    // Fail the workflow run if an error occurs
-    if (error instanceof Error) core.setFailed(error.message)
+    // Set the action as failed if there is an error
+    core.setFailed((error as Error)?.message as string)
   }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-run()
+run().catch(error => core.setFailed('Workflow failed! ' + error.message))
