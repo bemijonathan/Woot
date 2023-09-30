@@ -1,6 +1,7 @@
-export const id = 679;
-export const ids = [679];
-export const modules = {
+"use strict";
+exports.id = 679;
+exports.ids = [679];
+exports.modules = {
 
 /***/ 8393:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
@@ -1064,3 +1065,4 @@ async function encodingForModel(model, options) {
 /***/ })
 
 };
+;

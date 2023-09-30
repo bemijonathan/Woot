@@ -1,7 +1,7 @@
-import { OpenAI } from 'langchain/llms/openai'
-import { loadSummarizationChain } from 'langchain/chains'
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
-import { PromptTemplate } from 'langchain/prompts'
+const { OpenAI } = require('langchain/llms/openai')
+const { loadSummarizationChain } = require('langchain/chains')
+const { RecursiveCharacterTextSplitter } = require('langchain/text_splitter')
+const { PromptTemplate } = require('langchain/prompts')
 import { prompt } from 'src/prompts.js'
 import { Logger } from 'src/utils.js'
 

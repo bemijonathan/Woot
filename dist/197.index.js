@@ -1,6 +1,7 @@
-export const id = 197;
-export const ids = [197];
-export const modules = {
+"use strict";
+exports.id = 197;
+exports.ids = [197];
+exports.modules = {
 
 /***/ 3197:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
@@ -190,3 +191,4 @@ class BaseChain extends _base_language_index_js__WEBPACK_IMPORTED_MODULE_2__/* .
 /***/ })
 
 };
+;

@@ -1,6 +1,7 @@
-export const id = 657;
-export const ids = [657];
-export const modules = {
+"use strict";
+exports.id = 657;
+exports.ids = [657];
+exports.modules = {
 
 /***/ 8882:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
@@ -6926,3 +6927,4 @@ const parse = _dist_index_js__WEBPACK_IMPORTED_MODULE_0__.parse;
 /***/ })
 
 };
+;
