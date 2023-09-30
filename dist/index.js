@@ -27796,15 +27796,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -27820,39 +27811,36 @@ dotenv_1.default.config();
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
-function run() {
-    var _a;
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            // Extract the PR number from the GitHub context
-            const pullRequestNumber = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.number;
-            utils_js_1.Logger.log('pullRequestNumber', pullRequestNumber);
-            utils_js_1.Logger.log('github.context', github.context);
-            // If the PR number is not found, exit the action
-            if (!pullRequestNumber) {
-                utils_js_1.Logger.warn('Could not get pull request number from context, exiting');
-                return;
-            }
-            // Get the changes in the PR
-            const changes = yield (0, index_js_1.getChanges)(pullRequestNumber);
-            if (!changes) {
-                utils_js_1.Logger.warn('Could not get changes, exiting');
-                return;
-            }
-            // Summarize the changes
-            const summary = yield (0, index_js_1.summarizeChanges)(changes);
-            if (!summary) {
-                utils_js_1.Logger.warn('Could not summarize changes, exiting');
-                return;
-            }
-            // Post the summary as a comment
-            yield (0, index_js_1.postComment)(pullRequestNumber, summary);
+async function run() {
+    try {
+        // Extract the PR number from the GitHub context
+        const pullRequestNumber = github.context.payload.pull_request?.number;
+        utils_js_1.Logger.log('pullRequestNumber', pullRequestNumber);
+        utils_js_1.Logger.log('github.context', github.context);
+        // If the PR number is not found, exit the action
+        if (!pullRequestNumber) {
+            utils_js_1.Logger.warn('Could not get pull request number from context, exiting');
+            return;
         }
-        catch (error) {
-            // Set the action as failed if there is an error
-            core.setFailed(error === null || error === void 0 ? void 0 : error.message);
+        // Get the changes in the PR
+        const changes = await (0, index_js_1.getChanges)(pullRequestNumber);
+        if (!changes) {
+            utils_js_1.Logger.warn('Could not get changes, exiting');
+            return;
         }
-    });
+        // Summarize the changes
+        const summary = await (0, index_js_1.summarizeChanges)(changes);
+        if (!summary) {
+            utils_js_1.Logger.warn('Could not summarize changes, exiting');
+            return;
+        }
+        // Post the summary as a comment
+        await (0, index_js_1.postComment)(pullRequestNumber, summary);
+    }
+    catch (error) {
+        // Set the action as failed if there is an error
+        core.setFailed(error?.message);
+    }
 }
 exports.run = run;
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -27935,15 +27923,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -27953,25 +27932,27 @@ const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const axios_1 = __importDefault(__nccwpck_require__(8757));
 const utils_js_1 = __nccwpck_require__(1314);
-function getChanges(pullRequestNumber) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            utils_js_1.Logger.log('getting changes', pullRequestNumber);
-            const githubToken = core.getInput('token');
-            const octokit = github.getOctokit(githubToken);
-            const repo = github.context.repo;
-            const { data: files } = yield octokit.rest.pulls.get(Object.assign(Object.assign({}, repo), { pull_number: pullRequestNumber, mediaType: {
-                    format: 'diff'
-                } }));
-            utils_js_1.Logger.log('got changes diff', files);
-            const response = yield axios_1.default.get(files.diff_url);
-            utils_js_1.Logger.log('diff', response.data);
-            return response.data;
-        }
-        catch (error) {
-            utils_js_1.Logger.error('error getting changes');
-        }
-    });
+async function getChanges(pullRequestNumber) {
+    try {
+        utils_js_1.Logger.log('getting changes', pullRequestNumber);
+        const githubToken = core.getInput('token');
+        const octokit = github.getOctokit(githubToken);
+        const repo = github.context.repo;
+        const { data: files } = await octokit.rest.pulls.get({
+            ...repo,
+            pull_number: pullRequestNumber,
+            mediaType: {
+                format: 'diff'
+            }
+        });
+        utils_js_1.Logger.log('got changes diff', files);
+        const response = await axios_1.default.get(files.diff_url);
+        utils_js_1.Logger.log('diff', response.data);
+        return response.data;
+    }
+    catch (error) {
+        utils_js_1.Logger.error('error getting changes');
+    }
 }
 exports.getChanges = getChanges;
 
@@ -28031,29 +28012,22 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.postComment = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const utils_js_1 = __nccwpck_require__(1314);
-function postComment(pullRequestNumber, summary) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const githubToken = core.getInput('token');
-        const octokit = github.getOctokit(githubToken);
-        const repo = github.context.repo;
-        utils_js_1.Logger.log('posted comment', github.context);
-        const { data } = yield octokit.rest.pulls.update(Object.assign(Object.assign({}, repo), { pull_number: pullRequestNumber, body: summary }));
-        utils_js_1.Logger.log('posted comment', data.body);
+async function postComment(pullRequestNumber, summary) {
+    const githubToken = core.getInput('token');
+    const octokit = github.getOctokit(githubToken);
+    const repo = github.context.repo;
+    utils_js_1.Logger.log('posted comment', github.context);
+    const { data } = await octokit.rest.pulls.update({
+        ...repo,
+        pull_number: pullRequestNumber,
+        body: summary
     });
+    utils_js_1.Logger.log('posted comment', data.body);
 }
 exports.postComment = postComment;
 
@@ -28061,18 +28035,9 @@ exports.postComment = postComment;
 /***/ }),
 
 /***/ 1177:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.summarizeChanges = void 0;
 const openai_1 = __nccwpck_require__(147);
@@ -28081,40 +28046,38 @@ const text_splitter_1 = __nccwpck_require__(8356);
 const prompts_1 = __nccwpck_require__(224);
 const prompts_js_1 = __nccwpck_require__(9699);
 const utils_js_1 = __nccwpck_require__(1314);
-function summarizeChanges(diff) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            utils_js_1.Logger.log('summarizing changes');
-            const model = new openai_1.OpenAI({ temperature: 0 });
-            utils_js_1.Logger.log('created model');
-            const textSplitter = new text_splitter_1.RecursiveCharacterTextSplitter({
-                chunkSize: 1000,
-                separators: ['diff --git'],
-                chunkOverlap: 0,
-                keepSeparator: true
-            });
-            utils_js_1.Logger.log('created text splitter');
-            const docs = yield textSplitter.createDocuments([diff]);
-            const basePromptTemplate = prompts_1.PromptTemplate.fromTemplate(prompts_js_1.prompt);
-            utils_js_1.Logger.log('created prompt template');
-            const chain = (0, chains_1.loadSummarizationChain)(model, {
-                prompt: basePromptTemplate,
-                verbose: true,
-                type: 'stuff'
-            });
-            utils_js_1.Logger.log('loaded summarization chain');
-            const res = yield chain.call({
-                input_documents: docs
-            });
-            utils_js_1.Logger.log('summarized changes');
-            console.log({ res });
-            return res.output.join('\n');
-        }
-        catch (e) {
-            utils_js_1.Logger.log('error summarizing changes');
-            utils_js_1.Logger.error(JSON.stringify(e));
-        }
-    });
+async function summarizeChanges(diff) {
+    try {
+        utils_js_1.Logger.log('summarizing changes');
+        const model = new openai_1.OpenAI({ temperature: 0 });
+        utils_js_1.Logger.log('created model');
+        const textSplitter = new text_splitter_1.RecursiveCharacterTextSplitter({
+            chunkSize: 1000,
+            separators: ['diff --git'],
+            chunkOverlap: 0,
+            keepSeparator: true
+        });
+        utils_js_1.Logger.log('created text splitter');
+        const docs = await textSplitter.createDocuments([diff]);
+        const basePromptTemplate = prompts_1.PromptTemplate.fromTemplate(prompts_js_1.prompt);
+        utils_js_1.Logger.log('created prompt template');
+        const chain = (0, chains_1.loadSummarizationChain)(model, {
+            prompt: basePromptTemplate,
+            verbose: true,
+            type: 'stuff'
+        });
+        utils_js_1.Logger.log('loaded summarization chain');
+        const res = await chain.call({
+            input_documents: docs
+        });
+        utils_js_1.Logger.log('summarized changes');
+        console.log({ res });
+        return res.output.join('\n');
+    }
+    catch (e) {
+        utils_js_1.Logger.log('error summarizing changes');
+        utils_js_1.Logger.error(JSON.stringify(e));
+    }
 }
 exports.summarizeChanges = summarizeChanges;
 
