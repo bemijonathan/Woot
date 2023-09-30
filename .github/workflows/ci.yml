@@ -50,7 +50,7 @@ jobs:
 
       - name: Test Local Action
         id: test-action
-        uses: node ./
+        uses: ./ # Uses an action in the root directory
 
       - name: Print Output
         id: output
