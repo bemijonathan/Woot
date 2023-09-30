@@ -14,6 +14,7 @@ export async function run(): Promise<void> {
     const pullRequestNumber = github.context.payload.pull_request?.number
 
     Logger.log('pullRequestNumber', pullRequestNumber)
+    Logger.log('github.context', github.context)
 
     // If the PR number is not found, exit the action
     if (!pullRequestNumber) {
