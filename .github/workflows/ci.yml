@@ -21,7 +21,7 @@ jobs:
         id: setup-node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           cache: npm
 
       - name: Install Dependencies
@@ -45,12 +45,14 @@ jobs:
         id: setup-node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           cache: npm
 
       - name: Test Local Action
         id: test-action
-        uses: ./ # Uses an action in the root directory
+        uses: ./
+        with:
+          node-version: 20
 
       - name: Print Output
         id: output
