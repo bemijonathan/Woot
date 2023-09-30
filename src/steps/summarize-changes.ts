@@ -1,76 +1,42 @@
+import { OpenAI } from 'langchain/llms/openai'
+import { loadSummarizationChain } from 'langchain/chains'
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
+import { PromptTemplate } from 'langchain/prompts'
+import { prompt } from 'src/prompts.js'
+import { Logger } from 'src/utils.js'
 
+export async function summarizeChanges(
+  diff: string
+): Promise<string | undefined> {
+  try {
+    Logger.log('summarizing changes')
+    const model = new OpenAI({ temperature: 0 })
+    Logger.log('created model')
+    const textSplitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 1000,
+      separators: ['diff --git'],
+      chunkOverlap: 0,
+      keepSeparator: true
+    })
+    Logger.log('created text splitter')
+    const docs = await textSplitter.createDocuments([diff])
+    const basePromptTemplate = PromptTemplate.fromTemplate(prompt)
+    Logger.log('created prompt template')
+    const chain = loadSummarizationChain(model, {
+      prompt: basePromptTemplate,
+      verbose: true,
+      type: 'stuff'
+    })
+    Logger.log('loaded summarization chain')
+    const res = await chain.call({
+      input_documents: docs
+    })
+    Logger.log('summarized changes')
+    console.log({ res })
 
-const prompt = `
-Summarize the diff changes in the  file for the Pull Request:
-
-
-Additionally, please provide an assessment of the overall value of the feature or bug addressed by these changes. Is it considered a significant improvement or bug fix? Please explain your reasoning.
-`
-
-interface FileInfo {
-    name: string;
-    changes: string[];
-}
-
-export function summarizeChanges(files: any[]) {
-
-    const groupedFiles: Map<number, FileInfo[]> = new Map();
-
-    for (const file of files) {
-        const changeCount = file.changes.length;
-
-        if (!groupedFiles.has(changeCount)) {
-            groupedFiles.set(changeCount, []);
-        }
-
-        groupedFiles.get(changeCount)!.push(file);
-    }
-
-    for (const [changeCount, files] of groupedFiles) {
-        console.log(`Grouping files by change count: ${changeCount}`);
-        for (const file of files) {
-            console.log(` - ${file.name}`);
-        }
-    }
-
-
-    let summary = '## Summary of Changes\n\n';
-
-    for (const file of files) {
-        summary += `- ${file.filename}: ${file.status}, ${file.changes} changes\n`;
-    }
-
-    return summary;
-}
-
-
-
-function groupFilesByChangeCount(files: FileInfo[]): void {
-    const sortedFiles = files.slice().sort((a, b) => {
-        // Sort files by their change count in descending order
-        return b.changes.length - a.changes.length;
-    });
-
-    let currentGroup: FileInfo[] = [];
-    let previousGroupSize = 0;
-
-    for (const file of sortedFiles) {
-        const fileChanges = file.changes.length;
-
-        // If the current file's change count is greater than the previous group size, start a new group
-        if (fileChanges > previousGroupSize) {
-            currentGroup = [];
-            previousGroupSize = fileChanges;
-        }
-
-        currentGroup.push(file);
-    }
-
-    // Log the grouped files
-    for (const group of currentGroup) {
-        console.log(`Grouping files by change count: ${previousGroupSize}`);
-        for (const file of group) {
-            console.log(` - ${file.name}`);
-        }
-    }
+    return res.output.join('\n')
+  } catch (e) {
+    Logger.log('error summarizing changes')
+    Logger.error(JSON.stringify(e as unknown as string))
+  }
 }
