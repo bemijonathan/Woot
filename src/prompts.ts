@@ -32,6 +32,11 @@ e.g.
   ## Testing Scope
   
   - Scenarios to be tested based on the changes of this PR e.g table was updated so all CRUD operations should be tested.
+  
+  ## Notable Changes
+
+  - if the new changes has a  significant change in the logic please add a short table of the old and new logic and ask 
+  if the new logic is correct or not.
     `
 
-export const generatePrompt = () => {}
+export const generatePrompt = () => { }

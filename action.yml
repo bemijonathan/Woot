@@ -1,4 +1,4 @@
-name: "Ai PR summarizer"
+name: "pull request summarizer"
 description: "Ai enabled summarizer for PRs"
 author: "bemijonathan"
 branding:
