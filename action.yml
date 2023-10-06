@@ -1,6 +1,15 @@
 name: "pull request summarizer"
 description: "Ai enabled summarizer for PRs"
 author: "bemijonathan"
+
+inputs:
+  gitHubToken:
+    description: "GitHub token"
+    required: true
+  openAIKey:
+    description: "OpenAI key"
+    required: true
+
 branding:
   color: "blue"
   icon: "align-left"

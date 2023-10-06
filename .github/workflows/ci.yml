@@ -59,6 +59,9 @@ jobs:
       - name: Test Local Action
         id: test-action
         uses: ./
+        with:
+          gitHubToken: ${{ secrets.GIT_HUB_TOKEN }}
+          openAIKey: ${{ secrets.OPENAI_KEY }}
 
       - name: Print Output
         id: output

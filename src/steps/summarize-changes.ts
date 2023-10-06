@@ -4,13 +4,18 @@ const { RecursiveCharacterTextSplitter } = require('langchain/text_splitter')
 const { PromptTemplate } = require('langchain/prompts')
 import { prompt } from 'src/prompts.js'
 import { Logger } from 'src/utils.js'
+import * as core from '@actions/core'
 
 export async function summarizeChanges(
   diff: string
 ): Promise<string | undefined> {
   try {
     Logger.log('summarizing changes')
-    const model = new OpenAI({ temperature: 0 })
+    const openAiKey = core.getInput('openAIKey')
+    const model = new OpenAI(
+      { temperature: 0 },
+      { apiKey: openAiKey }
+    )
     Logger.log('created model')
     const textSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: 1000,

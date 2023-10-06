@@ -8,7 +8,7 @@ export async function getChanges(
 ): Promise<string | undefined> {
   try {
     Logger.log('getting changes', pullRequestNumber)
-    const githubToken = core.getInput('token')
+    const githubToken = core.getInput('gitHubToken')
     const octokit = github.getOctokit(githubToken)
     const repo = github.context.repo
 
@@ -28,6 +28,6 @@ export async function getChanges(
 
     return response.data
   } catch (error) {
-    Logger.error('error getting changes')
+    Logger.error('error getting changes', JSON.stringify(error))
   }
 }
