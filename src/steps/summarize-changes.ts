@@ -42,6 +42,6 @@ export async function summarizeChanges(
     return res.output.join('\n')
   } catch (e) {
     Logger.log('error summarizing changes')
-    Logger.error(JSON.stringify(e as unknown as string))
+    Logger.log(JSON.stringify(e as unknown as string))
   }
 }
