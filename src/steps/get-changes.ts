@@ -22,11 +22,13 @@ export async function getChanges(
 
     Logger.log('got changes diff', files)
 
-    const response = await axios.get(files.diff_url)
+    // const response = await axios.get(files.diff_url)
 
-    Logger.log('diff', response.data)
+    // Logger.log('diff', response.data)
 
-    return response.data
+    return files as unknown as string
+
+    // return response.data
   } catch (error) {
     Logger.error('error getting changes', JSON.stringify(error))
   }
