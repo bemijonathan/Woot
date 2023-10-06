@@ -1,19 +1,9 @@
 name: "Ai PR summarizer"
 description: "Ai enabled summarizer for PRs"
 author: "bemijonathan"
-
-# Define your inputs here.
-# inputs:
-#   milliseconds:
-#     description: "Your input description here"
-#     required: true
-#     default: "1000"
-
-# # Define your outputs here.
-# outputs:
-#   time:
-#     description: "Your output description here"
-
+branding:
+  color: "blue"
+  icon: "align-left"
 runs:
-  using: node16
+  using: node20
   main: dist/index.js
