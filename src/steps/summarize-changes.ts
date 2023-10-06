@@ -13,8 +13,7 @@ export async function summarizeChanges(
     Logger.log('summarizing changes')
     const openAiKey = core.getInput('openAIKey')
     const model = new OpenAI(
-      { temperature: 0 },
-      { apiKey: openAiKey }
+      { temperature: 0, openAIApiKey: openAiKey },
     )
     Logger.log('created model')
     const textSplitter = new RecursiveCharacterTextSplitter({
