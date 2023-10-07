@@ -1,5 +1,5 @@
-name: "pull request summarizer"
-description: "Ai enabled summarizer for PRs"
+name: "atropellar"
+description: "Langchain summary for PR"
 author: "bemijonathan"
 
 inputs:
