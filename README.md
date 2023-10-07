@@ -14,9 +14,3 @@ PR Summarizer is an open source tool designed to help developers, project mainta
 
 **Contribution:**  
 Being an open source project, PR Summarizer welcomes contributions from the developer community. Whether it's improving the summarization algorithm, adding new features, or simply fixing bugs, every contribution helps in making the tool better for everyone.
-
-**License:**  
-MIT License
-
----
-Note: This is a fictional summary and the described project does not exist (to the best of my knowledge as of 2022). If you're interested in such a project, it might be a great idea to start one or search for similar existing projects in the open source community!
