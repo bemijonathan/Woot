@@ -20,9 +20,9 @@ export async function summarizeChanges(
     )
 
     const textSplitter = new RecursiveCharacterTextSplitter({
-      separators: ['diff --git'],
       chunkOverlap: 0,
-      keepSeparator: true
+      keepSeparator: true,
+      chunkSize: 5000
     })
 
     Logger.log('created text splitter')
@@ -35,6 +35,7 @@ export async function summarizeChanges(
     })
 
     Logger.log('created prompt template')
+
     const chain = loadSummarizationChain(model, {
       type: "refine",
       verbose: true,
