@@ -13,6 +13,8 @@ export async function summarizeChanges(
 
     const openAiKey = core.getInput('openAIKey')
 
+    Logger.log('creating openai model', openAiKey.length ? 'with key' : 'without key')
+
     const model = new OpenAI(
       { temperature: 0.7, openAIApiKey: openAiKey, "model": "davinci" },
     )
