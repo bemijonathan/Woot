@@ -3,7 +3,7 @@ import * as github from '@actions/github'
 import { Logger } from 'src/utils.js'
 
 export async function postComment(pullRequestNumber: number, summary: string) {
-  const githubToken = core.getInput('token')
+  const githubToken = core.getInput('gitHubToken')
   const octokit = github.getOctokit(githubToken)
   const repo = github.context.repo
   Logger.log('posted comment', github.context)
