@@ -61,7 +61,7 @@ jobs:
         uses: ./
         with:
           gitHubToken: ${{ secrets.GIT_HUB_TOKEN }}
-          openAIKey: ${{ secrets.OPENAI_KEY }}
+          openAIKey: ${{ secrets.OPENAI_API_KEY }}
 
       - name: Print Output
         id: output
