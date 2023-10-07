@@ -34,7 +34,7 @@ export async function run(): Promise<void> {
     const summary = await summarizeChanges(changes)
 
     if (!summary) {
-      Logger.warn('Could not summarize changes, exiting')
+      Logger.warn('Summary is empty, exiting')
       return
     }
 

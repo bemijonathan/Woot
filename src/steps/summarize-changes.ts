@@ -10,37 +10,48 @@ export async function summarizeChanges(
   diff: string
 ): Promise<string | undefined> {
   try {
-    Logger.log('summarizing changes')
+
     const openAiKey = core.getInput('openAIKey')
+
     const model = new OpenAI(
-      { temperature: 0, openAIApiKey: openAiKey },
+      { temperature: 0.7, openAIApiKey: openAiKey, "model": "davinci" },
     )
-    Logger.log('created model')
+
     const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 1000,
       separators: ['diff --git'],
       chunkOverlap: 0,
       keepSeparator: true
     })
+
     Logger.log('created text splitter')
+
     const docs = await textSplitter.createDocuments([diff])
-    const basePromptTemplate = PromptTemplate.fromTemplate(prompt)
+
+    const basePromptTemplate = new PromptTemplate({
+      template: prompt,
+      inputVariables: ["diff"]
+    })
+
     Logger.log('created prompt template')
     const chain = loadSummarizationChain(model, {
-      prompt: basePromptTemplate,
+      type: "refine",
       verbose: true,
-      type: 'stuff'
+      refinePrompt: basePromptTemplate
     })
+
     Logger.log('loaded summarization chain')
+
     const res = await chain.call({
-      input_documents: docs
+      input_documents: docs,
+      diff: diff
     })
+
     Logger.log('summarized changes')
     console.log({ res })
-
-    return res.output.join('\n')
+    return res.output_text
   } catch (e) {
     Logger.log('error summarizing changes')
+    console.log(e)
     Logger.log(e)
   }
 }

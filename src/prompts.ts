@@ -10,33 +10,8 @@ Be specific and descriptive, accurately identifying the affected files and lines
 Present your summary in a clear and concise manner, ensuring readability and comprehension for all stakeholders involved in the code review process. 
 
 Length: Aim for a summary of around 3-5 sentences. 
-
-Style: Maintain a professional and objective tone in your review, emphasizing the technical aspects and impact of the changes rather than personal opinions.
-
-Formatting: Use Markdown to format your summary.
-e.g.
-  ## Title
-
-  # Issue Reference
-  
-  - This PR fixes/closes/relates to issue #[issue number]
-  
-  ## Description
-  
-  - Detailed explanation of what this PR does and why it's needed.
-  
-  ## Why?
-  
-  - Explanation of the reasoning behind the changes.
-  
-  ## Testing Scope
-  
-  - Scenarios to be tested based on the changes of this PR e.g table was updated so all CRUD operations should be tested.
-  
-  ## Notable Changes
-
-  - if the new changes has a  significant change in the logic please add a short table of the old and new logic and ask 
-  if the new logic is correct or not.
+-----------------------------
+{diff}
     `
 
 export const generatePrompt = () => { }
