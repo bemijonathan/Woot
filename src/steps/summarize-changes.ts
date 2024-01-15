@@ -10,14 +10,18 @@ export async function summarizeChanges(
   diff: string
 ): Promise<string | undefined> {
   try {
-
     const openAiKey = core.getInput('openAIKey')
 
-    Logger.log('creating openai model', openAiKey.length ? 'with key' : 'without key')
-
-    const model = new OpenAI(
-      { temperature: 0.7, openAIApiKey: openAiKey, "model": "davinci" },
+    Logger.log(
+      'creating openai model',
+      openAiKey.length ? 'with key' : 'without key'
     )
+
+    const model = new OpenAI({
+      temperature: 0.7,
+      openAIApiKey: openAiKey,
+      model: 'davinci'
+    })
 
     const textSplitter = new RecursiveCharacterTextSplitter({
       chunkOverlap: 0,
@@ -31,13 +35,13 @@ export async function summarizeChanges(
 
     const basePromptTemplate = new PromptTemplate({
       template: prompt,
-      inputVariables: ["diff"]
+      inputVariables: ['diff']
     })
 
     Logger.log('created prompt template')
 
     const chain = loadSummarizationChain(model, {
-      type: "refine",
+      type: 'refine',
       verbose: true,
       refinePrompt: basePromptTemplate
     })

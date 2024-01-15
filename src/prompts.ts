@@ -8,4 +8,4 @@ Present your summary in a clear and concise manner, ensuring readability and com
 {diff}
     `
 
-export const generatePrompt = () => { }
+export const generatePrompt = () => {}

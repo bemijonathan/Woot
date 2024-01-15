@@ -3,7 +3,7 @@
     acceptance criteria checker for PR, 
 </p>
 
-**Description:**  
+## 🥂 Description  
 it checks the PR description of a task and ticks off the achieved acceptance criteria, does a PR Summarizer designed to help developers, project
 maintainers, and teams quickly understand the essence of pull requests. By
 generating concise summaries, it aids in faster reviews and ensures that key
