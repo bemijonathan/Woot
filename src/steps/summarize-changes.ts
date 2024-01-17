@@ -18,7 +18,7 @@ export async function summarizeChanges(
     )
 
     const model = new OpenAI({
-      temperature: 0.7,
+      temperature: 0.1,
       openAIApiKey: openAiKey,
       model: 'davinci'
     })

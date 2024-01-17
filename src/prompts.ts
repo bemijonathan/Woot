@@ -6,6 +6,6 @@ Be specific and descriptive, accurately identifying the affected files and lines
 Present your summary in a clear and concise manner, ensuring readability and comprehension for all stakeholders involved in the code review process. 
 -----------------------------
 {diff}
-    `
+`
 
-export const generatePrompt = () => {}
+export const generatePrompt = () => { }
