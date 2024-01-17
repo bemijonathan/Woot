@@ -62,6 +62,9 @@ jobs:
         with:
           gitHubToken: ${{ secrets.GIT_HUB_TOKEN }}
           openAIKey: ${{ secrets.OPENAI_API_KEY }}
+          jiraEmail: ${{ secrets.JIRA_EMAIL }}
+          jiraApiKey: ${{ secrets.JIRA_API_KEY }}
+          jiraHost: ${{ secrets.JIRA_HOST }}
 
       - name: Print Output
         id: output
