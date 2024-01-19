@@ -7,7 +7,7 @@
  */
 
 import * as core from '@actions/core'
-import * as index from '../src/index'
+import * as index from '../'
 
 // Mock the GitHub Actions core library
 const debugMock = jest.spyOn(core, 'debug')
