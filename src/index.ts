@@ -1,16 +1,17 @@
-
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { SummariseChanges, getChanges, postComment, getJiraTicket, Ai } from './steps'
+import {
+  SummariseChanges,
+  getChanges,
+  postComment,
+  getJiraTicket,
+  Ai
+} from './steps'
 import dotenv from 'dotenv'
-dotenv.config({ path: __dirname+'/.env' });
-
+dotenv.config({ path: __dirname + '/.env' })
 
 import { Logger } from './utils.js'
 import { mockdata } from './mockdata'
-
-
-
 
 export async function run(): Promise<void> {
   try {
@@ -38,12 +39,19 @@ export async function run(): Promise<void> {
 
     const ai = new Ai()
     const gitSummary = await SummariseChanges.summarizeGitChanges(changes, ai)
-    const jiraSummary = await SummariseChanges.summariseJiraTickets(jiraIssues, ai)
+    const jiraSummary = await SummariseChanges.summariseJiraTickets(
+      jiraIssues,
+      ai
+    )
     if (!jiraSummary || !gitSummary) {
       Logger.warn('Summary is empty, exiting')
       return
     }
-    const acSummaries = await SummariseChanges.checkedCodeReviewAgainstCriteria(gitSummary, jiraSummary, ai)
+    const acSummaries = await SummariseChanges.checkedCodeReviewAgainstCriteria(
+      gitSummary,
+      jiraSummary,
+      ai
+    )
     await postComment(pullRequestNumber, acSummaries ?? '')
   } catch (error) {
     core.setFailed((error as Error)?.message as string)

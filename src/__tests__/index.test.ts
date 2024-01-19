@@ -21,6 +21,4 @@ const runMock = jest.spyOn(index, 'run')
 // Other utilities
 const timeRegex = /^\d{2}:\d{2}:\d{2}/
 
-describe('action', () => {
-
-})
+describe('action', () => {})

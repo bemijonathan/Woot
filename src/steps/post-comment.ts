@@ -2,9 +2,9 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Logger } from '../utils'
 
-
 export async function postComment(pullRequestNumber: number, summary: string) {
-  const githubToken = core.getInput('gitHubToken') || process.env.GITHUB_ACCESS_TOKEN || '' 
+  const githubToken =
+    core.getInput('gitHubToken') || process.env.GITHUB_ACCESS_TOKEN || ''
   const octokit = github.getOctokit(githubToken)
   const repo = github.context.repo
   Logger.log('posted comment', github.context)

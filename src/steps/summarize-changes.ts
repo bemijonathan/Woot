@@ -5,16 +5,15 @@ import { PromptTemplate } from '@langchain/core/prompts'
 import { prompt, jiraPrompt, acSummariesPrompt } from '../prompts.js'
 import { Logger } from '../utils.js'
 import * as core from '@actions/core'
-import { Issue } from "jira.js/out/agile/models"
-
-
+import { Issue } from 'jira.js/out/agile/models'
 
 export class Ai {
   constructor() {
-     const openAiKey = core.getInput('openAIKey') || process.env.OPENAI_API_KEY || ''
-     this.model = new OpenAI({
+    const openAiKey =
+      core.getInput('openAIKey') || process.env.OPENAI_API_KEY || ''
+    this.model = new OpenAI({
       temperature: 0.1,
-      openAIApiKey: openAiKey,
+      openAIApiKey: openAiKey
     })
   }
   model: OpenAI
@@ -28,7 +27,6 @@ export class Ai {
   })
 }
 
-
 export class SummariseChanges {
   static textSplitter = new RecursiveCharacterTextSplitter({
     chunkOverlap: 0,
@@ -37,7 +35,7 @@ export class SummariseChanges {
   })
   static async summarizeGitChanges(
     diff: string,
-    ai: Ai,
+    ai: Ai
   ): Promise<string | undefined> {
     try {
       const docs = await this.textSplitter.createDocuments([diff])
@@ -45,7 +43,7 @@ export class SummariseChanges {
         type: 'refine',
         verbose: true,
         refinePrompt: ai.basePromptTemplate
-      })  
+      })
       const res = await chain.call({
         input_documents: docs,
         diff: diff
@@ -57,10 +55,12 @@ export class SummariseChanges {
     }
   }
 
-  static async summariseJiraTickets(issues: Issue[], ai: Ai){
-    const issueMapLongDesc = issues.map((issue) => {
-      return issue.fields?.description ?? ''
-    }).join('\n')
+  static async summariseJiraTickets(issues: Issue[], ai: Ai) {
+    const issueMapLongDesc = issues
+      .map(issue => {
+        return issue.fields?.description ?? ''
+      })
+      .join('\n')
     try {
       const docs = await this.textSplitter.createDocuments([issueMapLongDesc])
       Logger.log('created prompt template')
@@ -68,7 +68,7 @@ export class SummariseChanges {
         type: 'refine',
         verbose: true,
         refinePrompt: ai.jiraPromptTemplate
-      })  
+      })
       Logger.log('loaded summarization chain')
       const res = await chain.call({
         input_documents: docs,
@@ -81,7 +81,11 @@ export class SummariseChanges {
     }
   }
 
-  static checkedCodeReviewAgainstCriteria = async (gitSummary :string, jiraSummary:string, ai:Ai) => {
+  static checkedCodeReviewAgainstCriteria = async (
+    gitSummary: string,
+    jiraSummary: string,
+    ai: Ai
+  ) => {
     try {
       // decided to use a custom prompt for this
       const response = await ai.model.invoke(

@@ -1,7 +1,12 @@
 import { mockdata } from '../mockdata'
 import { run } from '../index'
 import * as github from '@actions/github'
-import { getJiraTicket, getChanges, SummariseChanges, postComment } from '../steps'
+import {
+  getJiraTicket,
+  getChanges,
+  SummariseChanges,
+  postComment
+} from '../steps'
 import * as core from '@actions/core'
 
 jest.mock('@actions/github')
@@ -10,14 +15,13 @@ jest.mock('@actions/core')
 
 describe('run', () => {
   it('should execute without errors', async () => {
-
     const jiraIssues = ['JIRA-123']
     const changes = ['Change 1', 'Change 2']
     const gitSummary = 'Git Summary'
     const jiraSummary = 'JIRA Summary'
     const acsummaries = 'Summary'
 
-    const githubContext  = mockdata
+    const githubContext = mockdata
     // getJiraTicket.mockResolvedValue(jiraIssues)
     // getChanges.mockResolvedValue(changes)
     // SummariseChanges.summarizeGitChanges.mockResolvedValue(gitSummary)

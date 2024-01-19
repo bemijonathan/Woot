@@ -8,7 +8,6 @@ Present your summary in a clear and concise manner, ensuring readability and com
 {diff}
 `
 
-
 export const jiraPrompt = `
 you are given a jira ticket that contains the acceptance criteria for the task you are reviewing 
 the aim is to collect all possible information from the jira ticket 
@@ -18,7 +17,6 @@ Jira Ticket description
 ______________________________________
  {ticketDescription}
 `
-
 
 export const acSummariesPrompt = `
 Your job is to take the code changes from the repository and the jira ticket 
@@ -41,4 +39,4 @@ if all the criteria is met you will check the box
 - [x] add a new validated dropdown column to chenge the status and the unmet criteria will be left unchecked
 - [ ] implement the correct logic to change the status
 `
-export const generatePrompt = () => { }
+export const generatePrompt = () => {}
