@@ -1,19 +1,20 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
+  "exclude": ["node_modules"],
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ESNext", // or higher
     "module": "nodenext",
-    "rootDir": "./src",
-    "moduleResolution": "nodenext",
-    "baseUrl": "./",
-    "sourceMap": true,
-    "outDir": "./dist",
-    "noImplicitAny": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "NodeNext",
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSources": false,
+    "isolatedModules": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
     "strict": true,
+    "preserveWatchOutput": true,
     "skipLibCheck": true,
-    "newLine": "lf"
-  },
-  "exclude": ["./dist", "./node_modules", "./__tests__", "./coverage"]
+    "incremental": true
+  }
 }

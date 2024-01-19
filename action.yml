@@ -9,6 +9,15 @@ inputs:
   openAIKey:
     description: "OpenAI key"
     required: true
+  jiraEmail:
+    description: "jira email associated with the api key"
+    required: true
+  jiraApiKey:
+    description: "jira access api key"
+    required: true
+  jiraHost:
+    description: "jira host endpoint"
+    required: true
 
 branding:
   color: "blue"

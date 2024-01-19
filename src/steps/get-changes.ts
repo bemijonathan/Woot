@@ -1,14 +1,14 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import axios from 'axios'
-import { Logger } from 'src/utils.js'
+import { Logger } from '../utils'
 
 export async function getChanges(
   pullRequestNumber: number
 ): Promise<string | undefined> {
   try {
     Logger.log('getting changes', pullRequestNumber)
-    const githubToken = core.getInput('gitHubToken')
+    const githubToken =
+      core.getInput('gitHubToken') || process.env.GITHUB_ACCESS_TOKEN || ''
     const octokit = github.getOctokit(githubToken)
     const repo = github.context.repo
 
@@ -22,14 +22,9 @@ export async function getChanges(
 
     Logger.log('got changes diff', files)
 
-    // const response = await axios.get(files.diff_url)
-
-    // Logger.log('diff', response.data)
-
     return files as unknown as string
-
-    // return response.data
   } catch (error) {
+    console.log(error)
     Logger.error('error getting changes', JSON.stringify(error))
   }
 }

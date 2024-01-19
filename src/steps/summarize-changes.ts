@@ -1,64 +1,106 @@
-const { OpenAI } = require('langchain/llms/openai')
+const { OpenAI } = require('@langchain/openai')
 const { loadSummarizationChain } = require('langchain/chains')
 const { RecursiveCharacterTextSplitter } = require('langchain/text_splitter')
-const { PromptTemplate } = require('langchain/prompts')
-import { prompt } from 'src/prompts.js'
-import { Logger } from 'src/utils.js'
+const { PromptTemplate } = require('@langchain/core/prompts')
+import { prompt, jiraPrompt, acSummariesPrompt } from '../prompts.js'
+import { Logger } from '../utils.js'
 import * as core from '@actions/core'
+import { Issue } from 'jira.js/out/agile/models'
 
-export async function summarizeChanges(
-  diff: string
-): Promise<string | undefined> {
-  try {
-    const openAiKey = core.getInput('openAIKey')
-
-    Logger.log(
-      'creating openai model',
-      openAiKey.length ? 'with key' : 'without key'
-    )
-
-    const model = new OpenAI({
-      temperature: 0.7,
-      openAIApiKey: openAiKey,
-      model: 'davinci'
+export class Ai {
+  constructor() {
+    const openAiKey =
+      core.getInput('openAIKey') || process.env.OPENAI_API_KEY || ''
+    this.model = new OpenAI({
+      temperature: 0.1,
+      openAIApiKey: openAiKey
     })
+  }
+  model: typeof OpenAI
+  basePromptTemplate = new PromptTemplate({
+    template: prompt,
+    inputVariables: ['diff']
+  })
+  jiraPromptTemplate = new PromptTemplate({
+    template: jiraPrompt,
+    inputVariables: ['ticketDescription']
+  })
+}
 
-    const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkOverlap: 0,
-      keepSeparator: true,
-      chunkSize: 5000
-    })
+export class SummariseChanges {
+  static textSplitter = new RecursiveCharacterTextSplitter({
+    chunkOverlap: 0,
+    keepSeparator: true,
+    chunkSize: 5000
+  })
+  static async summarizeGitChanges(
+    diff: string,
+    ai: Ai
+  ): Promise<string | undefined> {
+    try {
+      const docs = await this.textSplitter.createDocuments([diff])
+      const chain = loadSummarizationChain(ai.model, {
+        type: 'refine',
+        verbose: true,
+        refinePrompt: ai.basePromptTemplate
+      })
+      const res = await chain.call({
+        input_documents: docs,
+        diff: diff
+      })
+      Logger.log('summarized changes', { res })
+      return res.output_text
+    } catch (e) {
+      Logger.error('error summarizing changes', e)
+    }
+  }
 
-    Logger.log('created text splitter')
+  static async summariseJiraTickets(issues: Issue[], ai: Ai) {
+    const issueMapLongDesc = issues
+      .map(issue => {
+        return issue.fields?.description ?? ''
+      })
+      .join('\n')
+    try {
+      const docs = await this.textSplitter.createDocuments([issueMapLongDesc])
+      Logger.log('created prompt template')
+      const chain = loadSummarizationChain(ai.model, {
+        type: 'refine',
+        verbose: true,
+        refinePrompt: ai.jiraPromptTemplate
+      })
+      Logger.log('loaded summarization chain')
+      const res = await chain.call({
+        input_documents: docs,
+        diff: issueMapLongDesc
+      })
+      Logger.log('summarized jira tickets', { res })
+      return res.output_text
+    } catch (e) {
+      Logger.error('error summarizing changes', e)
+    }
+  }
 
-    const docs = await textSplitter.createDocuments([diff])
-
-    const basePromptTemplate = new PromptTemplate({
-      template: prompt,
-      inputVariables: ['diff']
-    })
-
-    Logger.log('created prompt template')
-
-    const chain = loadSummarizationChain(model, {
-      type: 'refine',
-      verbose: true,
-      refinePrompt: basePromptTemplate
-    })
-
-    Logger.log('loaded summarization chain')
-
-    const res = await chain.call({
-      input_documents: docs,
-      diff: diff
-    })
-
-    Logger.log('summarized changes')
-    console.log({ res })
-    return res.output_text
-  } catch (e) {
-    Logger.log('error summarizing changes')
-    console.log(e)
-    Logger.log(e)
+  static checkedCodeReviewAgainstCriteria = async (
+    gitSummary: string,
+    jiraSummary: string,
+    ai: Ai
+  ) => {
+    try {
+      // decided to use a custom prompt for this
+      const response = await ai.model.invoke(
+        `
+        ${acSummariesPrompt}
+        ------------------ git diff ------------------
+        ${gitSummary}
+        ------------------ jira tickets ------------------
+        ${jiraSummary}
+        `
+      )
+      console.log(response)
+      return response
+    } catch (e) {
+      Logger.error('error summarizing changes', e)
+    }
   }
 }
