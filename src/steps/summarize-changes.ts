@@ -1,7 +1,7 @@
-import { OpenAI } from '@langchain/openai'
+const { OpenAI } = require('@langchain/openai')
 const { loadSummarizationChain } = require('langchain/chains')
 const { RecursiveCharacterTextSplitter } = require('langchain/text_splitter')
-import { PromptTemplate } from '@langchain/core/prompts'
+const { PromptTemplate } = require('@langchain/core/prompts')
 import { prompt, jiraPrompt, acSummariesPrompt } from '../prompts.js'
 import { Logger } from '../utils.js'
 import * as core from '@actions/core'
@@ -16,7 +16,7 @@ export class Ai {
       openAIApiKey: openAiKey
     })
   }
-  model: OpenAI
+  model: typeof OpenAI
   basePromptTemplate = new PromptTemplate({
     template: prompt,
     inputVariables: ['diff']

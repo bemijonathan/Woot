@@ -1,9 +1,10 @@
 {
   "exclude": ["node_modules"],
   "compilerOptions": {
-    "target": "es2016",
-    "module": "Node16",
-    "moduleResolution": "node16",
+    "target": "ESNext", // or higher
+    "module": "nodenext",
+    "resolveJsonModule": true,
+    "moduleResolution": "NodeNext",
     "declaration": true,
     "declarationMap": true,
     "inlineSources": false,
@@ -14,7 +15,6 @@
     "strict": true,
     "preserveWatchOutput": true,
     "skipLibCheck": true,
-    "incremental": true,
-    "resolveJsonModule": true
+    "incremental": true
   }
 }
