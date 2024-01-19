@@ -8,4 +8,37 @@ Present your summary in a clear and concise manner, ensuring readability and com
 {diff}
 `
 
+
+export const jiraPrompt = `
+you are given a jira ticket that contains the acceptance criteria for the task you are reviewing 
+the aim is to collect all possible information from the jira ticket 
+and create a summary of all the acceptance criteria and and todos from from the description
+
+Jira Ticket description
+______________________________________
+ {ticketDescription}
+`
+
+
+export const acSummariesPrompt = `
+Your job is to take the code changes from the repository and the jira ticket 
+you will take the acceptance criteria from the 
+ticket and create a readme checklist of the acceptance criteria
+you will then compare the code changes to the acceptance criteria 
+if the code changes meet the acceptance criteria you will check the box 
+
+you will use this format 
+
+### Task: move all business logic to the services folder  
+
+- [ ] add a new column called status
+- [ ] add a new validated dropdown column to chenge the status
+- [ ] implement the correct logic to change the status
+
+if all the criteria is met you will check the box
+
+- [x] add a new column called status
+- [x] add a new validated dropdown column to chenge the status and the unmet criteria will be left unchecked
+- [ ] implement the correct logic to change the status
+`
 export const generatePrompt = () => { }

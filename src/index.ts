@@ -1,16 +1,20 @@
+
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { SummariseChanges, getChanges, postComment } from './steps/index.js'
+import { SummariseChanges, getChanges, postComment, getJiraTicket, Ai } from './steps'
 import dotenv from 'dotenv'
+dotenv.config({ path: __dirname+'/.env' });
+
+
 import { Logger } from './utils.js'
-import { getJiraTicket } from './steps/jira.js'
-dotenv.config()
-/**
- * The main function for the action.
- * @returns {Promise<void>} Resolves when the action is complete.
- */
+import { mockdata } from './mockdata'
+
+
+
+
 export async function run(): Promise<void> {
   try {
+    // const githubContext = mockdata
     const githubContext = github.context
     const pullRequestNumber = githubContext.payload.pull_request?.number
     if (!pullRequestNumber) {
@@ -20,7 +24,7 @@ export async function run(): Promise<void> {
     const jiraIssues = await getJiraTicket({
       title: githubContext.payload.pull_request?.title,
       branchName: githubContext.payload.pull_request?.head.ref,
-      body: githubContext.payload.pull_request?.body
+      body: githubContext.payload.pull_request?.body ?? 'WOOT-1'
     })
     if (!jiraIssues.length) {
       Logger.warn('Could not get jira ticket, exiting')
@@ -31,15 +35,16 @@ export async function run(): Promise<void> {
       Logger.warn('Could not get changes, exiting')
       return
     }
-    const gitSummary = await SummariseChanges.summarizeGitChanges(changes)
-    const jiraSummary = await SummariseChanges.summariseJiraTickets(jiraIssues)
+
+    const ai = new Ai()
+    const gitSummary = await SummariseChanges.summarizeGitChanges(changes, ai)
+    const jiraSummary = await SummariseChanges.summariseJiraTickets(jiraIssues, ai)
     if (!jiraSummary || !gitSummary) {
       Logger.warn('Summary is empty, exiting')
       return
     }
-    const acsummaries = await SummariseChanges.checkedCodeReviewAgainstCriteria(gitSummary, jiraSummary)
-    await postComment(pullRequestNumber, gitSummary)
-    await postComment(pullRequestNumber, acsummaries)
+    const acSummaries = await SummariseChanges.checkedCodeReviewAgainstCriteria(gitSummary, jiraSummary, ai)
+    await postComment(pullRequestNumber, acSummaries ?? '')
   } catch (error) {
     core.setFailed((error as Error)?.message as string)
   }

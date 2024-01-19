@@ -3,21 +3,22 @@ import { Version3Client } from 'jira.js'
 import { Issue } from "jira.js/out/agile/models"
 import * as core from '@actions/core'
 
-import { Logger } from "src/utils"
+import { Logger } from "../utils"
 
 const initializeJiraClient = () => {
+    const host = core.getInput('jiraHost') || process.env.JIRA_HOST || ''
     return new Version3Client({
-        host: core.getInput('jiraHost'),
+        host,
         authentication: {
             basic: {
-                email: core.getInput('jiraEmail'),
-                apiToken: core.getInput('jiraApiKey')
+                email: core.getInput('jiraEmail') || process.env.JIRA_EMAIL || '',
+                apiToken: core.getInput('jiraApiKey') || process.env.JIRA_API_KEY || ''
             }
         }
     })
 }
 
-const jiraClient = initializeJiraClient()
+
 
 
 export const getJiraTicket = async ({
@@ -27,6 +28,7 @@ export const getJiraTicket = async ({
         branchName :string, 
         body?:string,
     }): Promise<Issue[]> => {
+        const jiraClient = initializeJiraClient()
         const ticketRegex = /([A-Z]+-[0-9]+)/g
         const allTickets = (`${body} ${branchName} ${title}`|| '').match(ticketRegex)
         if (!allTickets?.length) return []
@@ -41,6 +43,6 @@ export const getJiraTicket = async ({
                 Logger.error(`Error while fetching ${t} from JIRA`)
             }
         }))
-        return issues.filter(e => !e) as unknown as Issue[]
+        return issues.filter(e => e) as unknown as Issue[]
 }
 
