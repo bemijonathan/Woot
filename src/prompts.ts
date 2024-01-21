@@ -36,3 +36,22 @@ if all the criteria is met you will check the box
 - [x] add a new validated dropdown column to chenge the status and the unmet criteria will be left unchecked
 - [ ] implement the correct logic to change the status
 `
+
+export const compareOldSummaryTemplate = (
+  oldCheckList: string,
+  newCheckList: string
+) => `
+the old checklist summary is from merging the summary of the jira ticket and the summary of the code changes:
+_____________________________________________________________ 
+${oldCheckList} 
+
+then a new commit is made and we have a new summary of the code changes with acceptance criteria checklist as so 
+_____________________________________________________________
+${newCheckList}
+
+the goal is to compare the two summaries and check the boxes of the acceptance criteria that have been met
+if the acceptance criteria has been met in the new summary but not in the old summary the box will be checked
+if the acceptance criteria has been met in the old summary but not in the new summary the box will be unchecked
+keep the boxes checked if the acceptance criteria has been met in both summaries
+keep the information updated based on the new summary of the code changes
+`

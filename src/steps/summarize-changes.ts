@@ -1,27 +1,33 @@
 import OpenAI from 'openai'
 const { RecursiveCharacterTextSplitter } = require('langchain/text_splitter')
-import { prompt, jiraPrompt, acSummariesPrompt } from '../prompts.js'
+import {
+  prompt,
+  jiraPrompt,
+  acSummariesPrompt,
+  compareOldSummaryTemplate
+} from '../prompts.js'
 import { Logger } from '../utils.js'
 import * as core from '@actions/core'
 import { Issue } from 'jira.js/out/agile/models'
-
 
 export class Ai {
   constructor() {
     const openAiKey =
       core.getInput('openAIKey') || process.env.OPENAI_API_KEY || ''
     this.model = new OpenAI({
-      apiKey: openAiKey,
-      
+      apiKey: openAiKey
     })
   }
   configuration = {
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-3.5-turbo'
   }
   model: OpenAI
   basePromptTemplate = prompt
   jiraPromptTemplate = jiraPrompt
   acSummariesPromptTemplate = acSummariesPrompt
+  compareOldSummaryTemplate(oldSummary: string, newSummary: string): string {
+    return compareOldSummaryTemplate(oldSummary, newSummary)
+  }
 }
 
 export class SummariseChanges {

@@ -25,7 +25,7 @@ export async function run(): Promise<void> {
     const jiraIssues = await getJiraTicket({
       title: githubContext.payload.pull_request?.title,
       branchName: githubContext.payload.pull_request?.head.ref,
-      body: githubContext.payload.pull_request?.body ?? 'WOOT-1'
+      body: `${githubContext.payload.pull_request?.body} ${githubContext.payload.pull_request?.head.ref}}`
     })
     if (!jiraIssues.length) {
       Logger.warn('Could not get jira ticket, exiting')
@@ -52,7 +52,7 @@ export async function run(): Promise<void> {
       jiraSummary,
       ai
     )
-    await postComment(pullRequestNumber, acSummaries ?? '')
+    await postComment(pullRequestNumber, acSummaries ?? '', ai)
   } catch (error) {
     core.setFailed((error as Error)?.message as string)
   }
