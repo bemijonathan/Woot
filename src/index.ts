@@ -52,7 +52,7 @@ export async function run(): Promise<void> {
       jiraSummary,
       ai
     )
-    await postComment(pullRequestNumber, acSummaries ?? '')
+    await postComment(pullRequestNumber, acSummaries ?? '', ai)
   } catch (error) {
     core.setFailed((error as Error)?.message as string)
   }
