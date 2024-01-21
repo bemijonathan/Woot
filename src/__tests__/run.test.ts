@@ -5,7 +5,7 @@ import {
   getJiraTicket,
   getChanges,
   SummariseChanges,
-  postComment
+  postSummary
 } from '../steps'
 import * as core from '@actions/core'
 
