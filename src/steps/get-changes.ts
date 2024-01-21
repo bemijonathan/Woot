@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Logger } from '../utils'
+// import { mockdata } from '../mockdata'
 
 export async function getChanges(
   pullRequestNumber: number
@@ -10,10 +11,12 @@ export async function getChanges(
     const githubToken =
       core.getInput('gitHubToken') || process.env.GITHUB_ACCESS_TOKEN || ''
     const octokit = github.getOctokit(githubToken)
+    // const repo = mockdata.payload.repository
     const repo = github.context.repo
 
     const { data: files } = await octokit.rest.pulls.get({
-      ...repo,
+      repo: repo.repo,
+      owner: repo.owner,
       pull_number: pullRequestNumber,
       mediaType: {
         format: 'diff'

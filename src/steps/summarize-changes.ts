@@ -1,30 +1,27 @@
-const { OpenAI } = require('@langchain/openai')
-const { loadSummarizationChain } = require('langchain/chains')
+import OpenAI from 'openai'
 const { RecursiveCharacterTextSplitter } = require('langchain/text_splitter')
-const { PromptTemplate } = require('@langchain/core/prompts')
 import { prompt, jiraPrompt, acSummariesPrompt } from '../prompts.js'
 import { Logger } from '../utils.js'
 import * as core from '@actions/core'
 import { Issue } from 'jira.js/out/agile/models'
+
 
 export class Ai {
   constructor() {
     const openAiKey =
       core.getInput('openAIKey') || process.env.OPENAI_API_KEY || ''
     this.model = new OpenAI({
-      temperature: 0.1,
-      openAIApiKey: openAiKey
+      apiKey: openAiKey,
+      
     })
   }
-  model: typeof OpenAI
-  basePromptTemplate = new PromptTemplate({
-    template: prompt,
-    inputVariables: ['diff']
-  })
-  jiraPromptTemplate = new PromptTemplate({
-    template: jiraPrompt,
-    inputVariables: ['ticketDescription']
-  })
+  configuration = {
+    model: 'gpt-3.5-turbo',
+  }
+  model: OpenAI
+  basePromptTemplate = prompt
+  jiraPromptTemplate = jiraPrompt
+  acSummariesPromptTemplate = acSummariesPrompt
 }
 
 export class SummariseChanges {
@@ -36,46 +33,46 @@ export class SummariseChanges {
   static async summarizeGitChanges(
     diff: string,
     ai: Ai
-  ): Promise<string | undefined> {
+  ): Promise<string | null> {
     try {
-      const docs = await this.textSplitter.createDocuments([diff])
-      const chain = loadSummarizationChain(ai.model, {
-        type: 'refine',
-        verbose: true,
-        refinePrompt: ai.basePromptTemplate
+      // lovely approach but takes too long since we can have 30 - 50
+      // documents and cannot wait the entire time
+      // const docs = await this.textSplitter.createDocuments([diff])
+      const response = await ai.model.chat.completions.create({
+        messages: [
+          {
+            role: 'user',
+            content: `${ai.basePromptTemplate} 
+            diff: ${diff}`
+          }
+        ],
+        ...ai.configuration
       })
-      const res = await chain.call({
-        input_documents: docs,
-        diff: diff
-      })
-      Logger.log('summarized changes', { res })
-      return res.output_text
+      Logger.log('summarized changes', { response })
+      return response.choices[0].message.content
     } catch (e) {
       Logger.error('error summarizing changes', e)
+      return null
     }
   }
 
   static async summariseJiraTickets(issues: Issue[], ai: Ai) {
-    const issueMapLongDesc = issues
-      .map(issue => {
-        return issue.fields?.description ?? ''
-      })
-      .join('\n')
+    const issueMapLongDesc = issues.join('\n')
     try {
-      const docs = await this.textSplitter.createDocuments([issueMapLongDesc])
-      Logger.log('created prompt template')
-      const chain = loadSummarizationChain(ai.model, {
-        type: 'refine',
-        verbose: true,
-        refinePrompt: ai.jiraPromptTemplate
+      // const docs = await this.textSplitter.createDocuments([issueMapLongDesc])
+      const response = await ai.model.chat.completions.create({
+        messages: [
+          {
+            role: 'user',
+            content: `${ai.jiraPromptTemplate}
+              _____________________________
+              ${issueMapLongDesc}`
+          }
+        ],
+        ...ai.configuration
       })
-      Logger.log('loaded summarization chain')
-      const res = await chain.call({
-        input_documents: docs,
-        diff: issueMapLongDesc
-      })
-      Logger.log('summarized jira tickets', { res })
-      return res.output_text
+      Logger.log('summarized jira tickets', { response })
+      return response.choices[0].message.content
     } catch (e) {
       Logger.error('error summarizing changes', e)
     }
@@ -88,17 +85,23 @@ export class SummariseChanges {
   ) => {
     try {
       // decided to use a custom prompt for this
-      const response = await ai.model.invoke(
-        `
-        ${acSummariesPrompt}
-        ------------------ git diff ------------------
-        ${gitSummary}
-        ------------------ jira tickets ------------------
-        ${jiraSummary}
-        `
-      )
+      const response = await ai.model.chat.completions.create({
+        messages: [
+          {
+            role: 'user',
+            content: `
+              ${ai.acSummariesPromptTemplate}
+              ------------------ git diff summary ------------------
+              ${gitSummary}
+              ------------------ jira tickets summary ------------------
+              ${jiraSummary}
+              `
+          }
+        ],
+        ...ai.configuration
+      })
       console.log(response)
-      return response
+      return response.choices[0].message.content
     } catch (e) {
       Logger.error('error summarizing changes', e)
     }

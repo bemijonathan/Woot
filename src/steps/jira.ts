@@ -1,5 +1,5 @@
 import { WebhookPayload } from '@actions/github/lib/interfaces'
-import { Version3Client } from 'jira.js'
+import { Version2Client } from 'jira.js'
 import { Issue } from 'jira.js/out/agile/models'
 import * as core from '@actions/core'
 
@@ -7,7 +7,7 @@ import { Logger } from '../utils'
 
 const initializeJiraClient = () => {
   const host = core.getInput('jiraHost') || process.env.JIRA_HOST || ''
-  return new Version3Client({
+  return new Version2Client({
     host,
     authentication: {
       basic: {
@@ -38,7 +38,7 @@ export const getJiraTicket = async ({
         const issue = await jiraClient.issues.getIssue({
           issueIdOrKey: t
         })
-        return issue
+        return issue.fields.description
       } catch (e) {
         Logger.error(`Error while fetching ${t} from JIRA`)
       }
