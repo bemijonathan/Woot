@@ -30,6 +30,13 @@ export async function run(): Promise<void> {
     })
     if (!jiraIssues.length) {
       Logger.warn('Could not get jira ticket, exiting')
+      await postComment(
+        `
+        **⚠️ Warning:**
+        No jira ticket found.
+        `,
+        pullRequestNumber
+      )
       return
     }
     const changes = await getChanges(pullRequestNumber)
