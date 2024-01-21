@@ -3,9 +3,10 @@ import * as github from '@actions/github'
 import {
   SummariseChanges,
   getChanges,
-  postComment,
+  postSummary,
   getJiraTicket,
-  Ai
+  Ai,
+  postComment
 } from './steps'
 import dotenv from 'dotenv'
 dotenv.config({ path: __dirname + '/.env' })
@@ -34,6 +35,14 @@ export async function run(): Promise<void> {
     const changes = await getChanges(pullRequestNumber)
     if (!changes) {
       Logger.warn('Could not get changes, exiting')
+      await postComment(
+        `
+        **⚠️ Warning:**
+        No git changes found in this pull request.
+        `,
+        pullRequestNumber
+      )
+
       return
     }
 
@@ -45,6 +54,13 @@ export async function run(): Promise<void> {
     )
     if (!jiraSummary || !gitSummary) {
       Logger.warn('Summary is empty, exiting')
+      await postComment(
+        `
+        **⚠️ Warning:**
+        No jira ticket found.
+        `,
+        pullRequestNumber
+      )
       return
     }
     const acSummaries = await SummariseChanges.checkedCodeReviewAgainstCriteria(
@@ -52,7 +68,7 @@ export async function run(): Promise<void> {
       jiraSummary,
       ai
     )
-    await postComment(pullRequestNumber, acSummaries ?? '', ai)
+    await postSummary(pullRequestNumber, acSummaries ?? '', ai)
   } catch (error) {
     core.setFailed((error as Error)?.message as string)
   }
