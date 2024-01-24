@@ -29,8 +29,8 @@
     Integrate Woot!! into your GitHub Actions workflow for automated PR checks. Here's an example configuration:
     
    ```sh
--  name: Run Woot!!
-      uses: bemijonathan/woot@v1
+-  name: Woot ai !!
+      uses: bemijonathan/Woot@0.1
       with:
          githubToken: ${{ secrets.GITHUB_TOKEN }}
          openAIKey: ${{ secrets.OPEN_AI_KEY }}
