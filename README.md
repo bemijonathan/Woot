@@ -47,10 +47,10 @@
 
 <h3>📜 License</h3>
 <p>
-    This project is licensed under the MIT License - see the <a href="LICENSE">LICENSE</a> file for details.
+    This project is free to use as custom software or any part can be extended for monetary value
 </p>
 
 <h3>📞 Support</h3>
 <p>
-    Need help? Contact us at <a href="mailto:support@woot.com">support@woot.com</a>.
+    Need help? Contact me 🤟 <a href="mailto:bemijonathan@gmail.com">bemijonathan@gmail.com</a>.
 </p>
