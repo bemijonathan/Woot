@@ -55,3 +55,6 @@ if the acceptance criteria has been met in the old summary but not in the new su
 keep the boxes checked if the acceptance criteria has been met in both summaries
 keep the information updated based on the new summary of the code changes
 `
+
+// using regex to match the file extensions to ignore
+export const ignoredFiles = []

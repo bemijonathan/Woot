@@ -2,7 +2,6 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Logger } from '../utils'
 
-
 export async function getChanges(
   pullRequestNumber: number
 ): Promise<string | undefined> {

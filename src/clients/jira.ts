@@ -17,7 +17,8 @@ export class JiraClient {
       authentication: {
         basic: {
           email: core.getInput('jiraEmail') || process.env.JIRA_EMAIL || '',
-          apiToken: core.getInput('jiraApiKey') || process.env.JIRA_API_KEY || ''
+          apiToken:
+            core.getInput('jiraApiKey') || process.env.JIRA_API_KEY || ''
         }
       }
     })
@@ -32,7 +33,9 @@ export class JiraClient {
     body?: string
   }): Promise<Issue[]> => {
     const ticketRegex = /([A-Z]+-[0-9]+)/g
-    const allTickets = (`${body} ${branchName} ${title}` || '').match(ticketRegex)
+    const allTickets = (`${body} ${branchName} ${title}` || '').match(
+      ticketRegex
+    )
     if (!allTickets?.length) return []
     const ticket = [...new Set(allTickets)]
     const issues = await Promise.all(

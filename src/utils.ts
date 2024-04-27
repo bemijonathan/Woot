@@ -16,7 +16,6 @@ export class Logger {
   }
 }
 
-
 export class Templates {
   static warning(message: string) {
     return `

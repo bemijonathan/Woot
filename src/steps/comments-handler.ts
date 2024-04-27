@@ -6,13 +6,9 @@ import { GitHub } from '@actions/github/lib/utils'
 import { GithubClient } from '../clients'
 
 export class CommentHandler {
-  constructor(private readonly repoClient: GithubClient) { }
+  constructor(private readonly repoClient: GithubClient) {}
   SIGNATURE = 'Added by woot! 🚂'
-  async postSummary(
-    pullRequestNumber: number,
-    summary: string,
-    ai: Ai
-  ) {
+  async postSummary(pullRequestNumber: number, summary: string, ai: Ai) {
     Logger.log('posted comment', github.context)
     const comments = await this.repoClient.getComments(pullRequestNumber)
     const existingComment = comments.find(
@@ -21,7 +17,10 @@ export class CommentHandler {
     let comment = `${summary} \n ${this.SIGNATURE}`
     if (existingComment?.body) {
       Logger.log('found existing comment, updating')
-      comment = `${await ai.compareOldSummaryTemplate(existingComment.body, summary)} \n ${this.SIGNATURE}`
+      comment = `${await ai.compareOldSummaryTemplate(
+        existingComment.body,
+        summary
+      )} \n ${this.SIGNATURE}`
     }
     await this.postComment(comment, pullRequestNumber)
   }
