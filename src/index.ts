@@ -1,4 +1,4 @@
-import core from '@actions/core'
+import * as core from '@actions/core'
 import github from '@actions/github'
 import { SummarizeChanges, getChanges, CommentHandler } from './steps'
 import dotenv from 'dotenv'
@@ -7,6 +7,7 @@ dotenv.config()
 import { Logger, Templates } from './utils.js'
 import { Ai } from './ai'
 import { GithubClient, JiraClient } from './clients'
+import { mockdata } from './mockdata'
 
 // instantiate clients
 const jiraClient = new JiraClient()
@@ -14,10 +15,10 @@ const githubClient = new GithubClient()
 const commentsHandler = new CommentHandler(githubClient)
 const ai = new Ai()
 
-const githubContext = github.context
-
 export async function run(): Promise<void> {
   try {
+    const githubContext =
+      process.env.NODE_ENV === 'local' ? mockdata : github.context
     const pullRequestNumber = githubContext.payload.pull_request?.number
     if (!pullRequestNumber) {
       Logger.warn('Could not get pull request number from context, exiting')
