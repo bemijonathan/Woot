@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Logger } from '../utils'
-// import { mockdata } from '../mockdata'
+
 
 export async function getChanges(
   pullRequestNumber: number

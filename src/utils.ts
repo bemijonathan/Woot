@@ -15,3 +15,13 @@ export class Logger {
     core.error(`${message}: ${formattedArgs}`)
   }
 }
+
+
+export class Templates {
+  static warning(message: string) {
+    return `
+    **⚠️ Warning:**
+    ${message}
+    `
+  }
+}
