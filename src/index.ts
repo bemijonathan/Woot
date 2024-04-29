@@ -1,81 +1,78 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import {
-  SummariseChanges,
-  getChanges,
-  postSummary,
-  getJiraTicket,
-  Ai,
-  postComment
-} from './steps'
+import { SummarizeChanges, getChanges, CommentHandler } from './steps'
 import dotenv from 'dotenv'
-dotenv.config({ path: __dirname + '/.env' })
+dotenv.config()
 
-import { Logger } from './utils.js'
+import { Logger, Templates } from './utils.js'
+import { Ai } from './ai'
+import { GithubClient, JiraClient } from './clients'
 import { mockdata } from './mockdata'
+
+// instantiate clients
+const jiraClient = new JiraClient()
+const githubClient = new GithubClient()
+const commentsHandler = new CommentHandler(githubClient)
+const ai = new Ai()
 
 export async function run(): Promise<void> {
   try {
-    // const githubContext = mockdata
-    const githubContext = github.context
+    const githubContext =
+      process.env.NODE_ENV === 'local' ? mockdata : github.context
     const pullRequestNumber = githubContext.payload.pull_request?.number
     if (!pullRequestNumber) {
       Logger.warn('Could not get pull request number from context, exiting')
       return
     }
-    const jiraIssues = await getJiraTicket({
+
+    const jiraIssues = await jiraClient.getJiraTicket({
       title: githubContext.payload.pull_request?.title,
       branchName: githubContext.payload.pull_request?.head.ref,
       body: `${githubContext.payload.pull_request?.body} ${githubContext.payload.pull_request?.head.ref}}`
     })
+
     if (!jiraIssues.length) {
       Logger.warn('Could not get jira ticket, exiting')
-      await postComment(
-        `
-        **⚠️ Warning:**
-        No jira ticket found.
-        `,
+      await commentsHandler.postComment(
+        Templates.warning(
+          'No jira ticket found in this pull request, exiting.'
+        ),
         pullRequestNumber
       )
       return
     }
+
     const changes = await getChanges(pullRequestNumber)
     if (!changes) {
       Logger.warn('Could not get changes, exiting')
-      await postComment(
-        `
-        **⚠️ Warning:**
-        No git changes found in this pull request.
-        `,
+      await commentsHandler.postComment(
+        Templates.warning('No git changes found in this pull request.'),
         pullRequestNumber
       )
-
       return
     }
 
-    const ai = new Ai()
-    const gitSummary = await SummariseChanges.summarizeGitChanges(changes, ai)
-    const jiraSummary = await SummariseChanges.summariseJiraTickets(
-      jiraIssues,
-      ai
-    )
+    const [gitSummary, jiraSummary] = await Promise.all([
+      SummarizeChanges.summarizeGitChanges(changes, ai),
+      SummarizeChanges.summarizeJiraTickets(jiraIssues, ai)
+    ])
+
     if (!jiraSummary || !gitSummary) {
-      Logger.warn('Summary is empty, exiting')
-      await postComment(
-        `
-        **⚠️ Warning:**
-        No jira ticket found.
-        `,
+      Logger.warn('No jira ticket found or Summary is empty, exiting')
+      await commentsHandler.postComment(
+        Templates.warning('No matching jira ticket found.'),
         pullRequestNumber
       )
       return
     }
-    const acSummaries = await SummariseChanges.checkedCodeReviewAgainstCriteria(
+
+    const acSummaries = await SummarizeChanges.checkedCodeReviewAgainstCriteria(
       gitSummary,
       jiraSummary,
       ai
     )
-    await postSummary(pullRequestNumber, acSummaries ?? '', ai)
+
+    await commentsHandler.postSummary(pullRequestNumber, acSummaries ?? '', ai)
   } catch (error) {
     core.setFailed((error as Error)?.message as string)
   }

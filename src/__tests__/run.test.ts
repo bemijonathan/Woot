@@ -1,19 +1,20 @@
 import { mockdata } from '../mockdata'
 import { run } from '../index'
 import * as github from '@actions/github'
-import {
-  getJiraTicket,
-  getChanges,
-  SummariseChanges,
-  postSummary
-} from '../steps'
+import { getChanges, SummarizeChanges } from '../steps'
 import * as core from '@actions/core'
+import { JiraClient } from '../clients'
 
 jest.mock('@actions/github')
 jest.mock('./services')
 jest.mock('@actions/core')
 
 describe('run', () => {
+  const jira = jest.fn(() => {
+    return {
+      getJiraTicket: jest.fn(() => ['JIRA-123'])
+    }
+  })
   it('should execute without errors', async () => {
     const jiraIssues = ['JIRA-123']
     const changes = ['Change 1', 'Change 2']
@@ -22,12 +23,6 @@ describe('run', () => {
     const acsummaries = 'Summary'
 
     const githubContext = mockdata
-    // getJiraTicket.mockResolvedValue(jiraIssues)
-    // getChanges.mockResolvedValue(changes)
-    // SummariseChanges.summarizeGitChanges.mockResolvedValue(gitSummary)
-    // SummariseChanges.summariseJiraTickets.mockResolvedValue(jiraSummary)
-    // SummariseChanges.checkedCodeReviewAgainstCriteria.mockResolvedValue(acsummaries)
-    // postComment.mockResolvedValue()
 
     // await run()
 
@@ -37,11 +32,20 @@ describe('run', () => {
     //   body: githubContext.payload.pull_request.body
     // })
 
-    // expect(getChanges).toHaveBeenCalledWith(githubContext.payload.pull_request.number)
+    // expect(getChanges).toHaveBeenCalledWith(
+    //   githubContext.payload.pull_request.number
+    // )
     // expect(SummariseChanges.summarizeGitChanges).toHaveBeenCalledWith(changes)
-    // expect(SummariseChanges.summariseJiraTickets).toHaveBeenCalledWith(jiraIssues)
-    // expect(SummariseChanges.checkedCodeReviewAgainstCriteria).toHaveBeenCalledWith(gitSummary, jiraSummary)
-    // expect(postComment).toHaveBeenCalledWith(githubContext.payload.pull_request.number, gitSummary)
+    // expect(SummariseChanges.summariseJiraTickets).toHaveBeenCalledWith(
+    //   jiraIssues
+    // )
+    // expect(
+    //   SummariseChanges.checkedCodeReviewAgainstCriteria
+    // ).toHaveBeenCalledWith(gitSummary, jiraSummary)
+    // expect(postComment).toHaveBeenCalledWith(
+    //   githubContext.payload.pull_request.number,
+    //   gitSummary
+    // )
   })
 
   it('should handle errors', async () => {
