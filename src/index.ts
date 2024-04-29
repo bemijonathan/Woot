@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import github from '@actions/github'
+import * as github from '@actions/github'
 import { SummarizeChanges, getChanges, CommentHandler } from './steps'
 import dotenv from 'dotenv'
 dotenv.config()
