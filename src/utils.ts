@@ -11,6 +11,7 @@ export class Logger {
   }
 
   static error(message: string, ...args: any[]) {
+    // if process.env is not local then don't log the error
     const formattedArgs = args.map(arg => JSON.stringify(arg)).join(' ')
     core.error(`${message}: ${formattedArgs}`)
   }
