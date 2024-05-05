@@ -25,7 +25,7 @@ export async function run(): Promise<void> {
       return
     }
 
-    const jiraIssues = await jiraClient.getJiraTicket({
+    const jiraIssues = await jiraClient.getTicket({
       title: githubContext.payload.pull_request?.title,
       branchName: githubContext.payload.pull_request?.head.ref,
       body: `${githubContext.payload.pull_request?.body} ${githubContext.payload.pull_request?.head.ref}}`

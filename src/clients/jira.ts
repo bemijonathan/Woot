@@ -1,16 +1,17 @@
 import { WebhookPayload } from '@actions/github/lib/interfaces'
 import { Version2Client } from 'jira.js'
-import { Issue } from 'jira.js/out/agile/models'
+import { Issue } from 'jira.js/out/version2/models'
 import * as core from '@actions/core'
 
 import { Logger } from '../utils'
+import { IBaseClient, TicketInformation } from './base-client'
 
-export class JiraClient {
+export class JiraClient implements IBaseClient {
   client: Version2Client
   constructor() {
     this.client = this.initializeJiraClient()
   }
-  initializeJiraClient = () => {
+  private initializeJiraClient = () => {
     const host = core.getInput('jiraHost') || process.env.JIRA_HOST || ''
     return new Version2Client({
       host,
@@ -23,15 +24,11 @@ export class JiraClient {
       }
     })
   }
-  getJiraTicket = async ({
+  getTicket = async ({
     title,
     branchName,
     body
-  }: {
-    title?: string
-    branchName: string
-    body?: string
-  }): Promise<Issue[]> => {
+  }: TicketInformation): Promise<Issue[]> => {
     const ticketRegex = /([A-Z]+-[0-9]+)/g
     const allTickets = (`${body} ${branchName} ${title}` || '').match(
       ticketRegex
