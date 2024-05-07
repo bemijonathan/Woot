@@ -25,11 +25,18 @@ export async function run(): Promise<void> {
       return
     }
 
-    const jiraIssues = await jiraClient.getTicket({
-      title: githubContext.payload.pull_request?.title,
-      branchName: githubContext.payload.pull_request?.head.ref,
-      body: `${githubContext.payload.pull_request?.body} ${githubContext.payload.pull_request?.head.ref}}`
-    })
+    const pullRequestTitle = githubContext.payload.pull_request?.title
+    const pullRequestbranchName = githubContext.payload.pull_request?.head.ref
+    const pullRequestBody = `${githubContext.payload.pull_request?.body} ${githubContext.payload.pull_request?.head.ref}}`
+
+    const ticketRegex = /([A-Z]+-[0-9]+)/g
+    const allTickets = (
+      `${pullRequestBody} ${pullRequestbranchName} ${pullRequestTitle}` || ''
+    ).match(ticketRegex)
+    if (!allTickets?.length) return
+    const tickets = [...new Set(allTickets)]
+
+    const jiraIssues = await jiraClient.getTicket(tickets)
 
     if (!jiraIssues.length) {
       Logger.warn('Could not get jira ticket, exiting')

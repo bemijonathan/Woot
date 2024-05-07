@@ -1,4 +1,3 @@
-import { WebhookPayload } from '@actions/github/lib/interfaces'
 import { Version2Client } from 'jira.js'
 import { Issue } from 'jira.js/out/version2/models'
 import * as core from '@actions/core'
@@ -24,19 +23,9 @@ export class JiraClient implements IBaseClient {
       }
     })
   }
-  getTicket = async ({
-    title,
-    branchName,
-    body
-  }: TicketInformation): Promise<Issue[]> => {
-    const ticketRegex = /([A-Z]+-[0-9]+)/g
-    const allTickets = (`${body} ${branchName} ${title}` || '').match(
-      ticketRegex
-    )
-    if (!allTickets?.length) return []
-    const ticket = [...new Set(allTickets)]
+  getTicket = async (tickets: string[]): Promise<Issue[]> => {
     const issues = await Promise.all(
-      ticket.map(async t => {
+      tickets.map(async t => {
         try {
           const issue = await this.client.issues.getIssue({
             issueIdOrKey: t

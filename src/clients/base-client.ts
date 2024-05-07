@@ -1,4 +1,5 @@
 import { Issue } from 'jira.js/out/version2/models'
+import { ITrello } from '../types/trello'
 
 export type TicketInformation = {
   title?: string
@@ -6,5 +7,5 @@ export type TicketInformation = {
   body?: string
 }
 export interface IBaseClient {
-  getTicket(ticketInformation: TicketInformation): Promise<Issue[]>
+  getTicket(tickets: string[]): Promise<Issue[] | ITrello[]>
 }
