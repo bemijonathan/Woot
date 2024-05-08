@@ -1,13 +1,13 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { SummarizeChanges, getChanges, CommentHandler } from './steps'
+import { CommentHandler, getChanges, SummarizeChanges } from './steps'
 import dotenv from 'dotenv'
-dotenv.config()
-
 import { Logger, Templates } from './utils.js'
 import { Ai } from './ai'
-import { GithubClient, JiraClient } from './clients'
+import { BaseClient, GithubClient, JiraClient } from './clients'
 import { mockdata } from './mockdata'
+
+dotenv.config()
 
 // instantiate clients
 const jiraClient = new JiraClient()
@@ -15,28 +15,44 @@ const githubClient = new GithubClient()
 const commentsHandler = new CommentHandler(githubClient)
 const ai = new Ai()
 
+const getTicketsFromPullRequestDetails = (
+  githubContext: typeof github.context.payload
+) => {
+  const pullRequestTitle = githubContext.payload.pull_request?.title
+  const pullRequestbranchName = githubContext.payload.pull_request?.head.ref
+  const pullRequestBody = `${githubContext.payload.pull_request?.body} ${githubContext.payload.pull_request?.head.ref}}`
+
+  const ticketRegex = /([A-Z]+-[0-9]+)/g
+  const allTickets = (
+    `${pullRequestBody} ${pullRequestbranchName} ${pullRequestTitle}` || ''
+  ).match(ticketRegex)
+  return [...new Set(allTickets)]
+}
+
+const getClientInstance = () => {}
+
 export async function run(): Promise<void> {
   try {
     const githubContext =
       process.env.NODE_ENV === 'local' ? mockdata : github.context
     const pullRequestNumber = githubContext.payload.pull_request?.number
-    if (!pullRequestNumber) {
+    if (!pullRequestNumber || githubContext.payload) {
       Logger.warn('Could not get pull request number from context, exiting')
       return
     }
 
-    const pullRequestTitle = githubContext.payload.pull_request?.title
-    const pullRequestbranchName = githubContext.payload.pull_request?.head.ref
-    const pullRequestBody = `${githubContext.payload.pull_request?.body} ${githubContext.payload.pull_request?.head.ref}}`
+    const tickets = getTicketsFromPullRequestDetails(githubContext.payload)
 
-    const ticketRegex = /([A-Z]+-[0-9]+)/g
-    const allTickets = (
-      `${pullRequestBody} ${pullRequestbranchName} ${pullRequestTitle}` || ''
-    ).match(ticketRegex)
-    if (!allTickets?.length) return
-    const tickets = [...new Set(allTickets)]
+    if (!tickets.length)
+      return Logger.warn(
+        'Could not get pull request number from context, exiting'
+      )
 
-    const jiraIssues = await jiraClient.getTicket(tickets)
+    const client = BaseClient.client
+
+    if (!client) return Logger.error('No client credential is set up.')
+
+    const jiraIssues = await client.getTicketDetails(tickets)
 
     if (!jiraIssues.length) {
       Logger.warn('Could not get jira ticket, exiting')

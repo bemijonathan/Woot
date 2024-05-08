@@ -1,10 +1,9 @@
-import { IBaseClient } from './base-client'
 import { Logger } from '../utils'
-import { ITrello } from '../types/trello'
+import { IBaseClient } from '../types/client'
 
 const fetch = require('node-fetch')
 
-const trelloBaseUrl: string = 'https://api.trello.com/1'
+const trelloBaseUrl: string = 'https://api.trello.com/1/cards'
 
 export class TrelloClient implements IBaseClient {
   config: {
@@ -19,7 +18,7 @@ export class TrelloClient implements IBaseClient {
     }
   }
 
-  getTicket = async (tickets: string[]) => {
+  getTicketDetails = async (tickets: string[]) => {
     const issues = await Promise.all(
       tickets.map(async ticket => {
         try {
@@ -29,13 +28,15 @@ export class TrelloClient implements IBaseClient {
               method: 'GET'
             }
           )
-          return data.text()
+          const d = await data.json()
+
+          return d['desc']
         } catch (error) {
           Logger.error(`Error while fetching ${ticket} from `)
         }
       })
     )
 
-    return issues.map(e => e) as unknown as ITrello[]
+    return issues.map(e => e)
   }
 }

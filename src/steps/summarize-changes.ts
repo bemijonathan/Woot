@@ -1,6 +1,5 @@
 import { Ai } from '../ai.js'
 import { Logger } from '../utils.js'
-import { Issue } from 'jira.js/out/version2/models'
 
 export class SummarizeChanges {
   static async summarizeGitChanges(
@@ -12,7 +11,7 @@ export class SummarizeChanges {
   }
 
   static async summarizeJiraTickets(
-    issues: Issue[],
+    issues: string[],
     ai: Ai
   ): Promise<string | null> {
     const issueMapLongDesc = issues.join('\n')
