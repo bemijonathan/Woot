@@ -62,9 +62,13 @@ jobs:
         with:
           gitHubToken: ${{ secrets.GIT_HUB_TOKEN }}
           openAIKey: ${{ secrets.OPENAI_API_KEY }}
+          # Jira credentials
           jiraEmail: ${{ secrets.JIRA_EMAIL }}
           jiraApiKey: ${{ secrets.JIRA_API_KEY }}
           jiraHost: ${{ secrets.JIRA_HOST }}
+          # trello credentials
+          # trelloPublicKey: ${{ secrets.TRELLO_PUBLIC_KEY }}
+          # trelloPrivateKey: ${{ secrets.TRELLO_PRIVATE_KEY }}
 
       - name: Print Output
         id: output

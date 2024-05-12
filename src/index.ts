@@ -4,23 +4,20 @@ import { CommentHandler, getChanges, SummarizeChanges } from './steps'
 import dotenv from 'dotenv'
 import { Logger, Templates } from './utils.js'
 import { Ai } from './ai'
-import { BaseClient, GithubClient, JiraClient } from './clients'
-import { mockdata } from './mockdata'
+import { BaseClient, GithubClient } from './clients'
+import { WebhookPayload } from '@actions/github/lib/interfaces'
 
 dotenv.config()
 
 // instantiate clients
-const jiraClient = new JiraClient()
 const githubClient = new GithubClient()
 const commentsHandler = new CommentHandler(githubClient)
 const ai = new Ai()
 
-const getTicketsFromPullRequestDetails = (
-  githubContext: typeof github.context.payload
-) => {
-  const pullRequestTitle = githubContext.payload.pull_request?.title
-  const pullRequestbranchName = githubContext.payload.pull_request?.head.ref
-  const pullRequestBody = `${githubContext.payload.pull_request?.body} ${githubContext.payload.pull_request?.head.ref}}`
+const getTicketsFromPullRequestDetails = ({ pull_request }: WebhookPayload) => {
+  const pullRequestTitle = pull_request?.title
+  const pullRequestbranchName = pull_request?.head.ref
+  const pullRequestBody = `${pull_request?.body} ${pull_request?.head.ref}}`
 
   const ticketRegex = /([A-Z]+-[0-9]+)/g
   const allTickets = (
@@ -29,14 +26,14 @@ const getTicketsFromPullRequestDetails = (
   return [...new Set(allTickets)]
 }
 
-const getClientInstance = () => {}
-
 export async function run(): Promise<void> {
   try {
-    const githubContext =
-      process.env.NODE_ENV === 'local' ? mockdata : github.context
+    const githubContext = github.context
+
+    console.log(githubContext.payload.pull_request?.number, 'githubContext')
     const pullRequestNumber = githubContext.payload.pull_request?.number
-    if (!pullRequestNumber || githubContext.payload) {
+
+    if (!pullRequestNumber) {
       Logger.warn('Could not get pull request number from context, exiting')
       return
     }
