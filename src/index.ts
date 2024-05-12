@@ -27,11 +27,11 @@ const getTicketsFromPullRequestDetails = (
   return [...new Set(allTickets)]
 }
 
-const getClientInstance = () => {}
-
 export async function run(): Promise<void> {
   try {
     const githubContext = github.context
+
+    console.log(githubContext, 'githubContext')
     const pullRequestNumber = githubContext.payload.pull_request?.number
 
     if (!pullRequestNumber || !githubContext.payload) {
