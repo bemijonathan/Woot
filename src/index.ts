@@ -5,7 +5,6 @@ import dotenv from 'dotenv'
 import { Logger, Templates } from './utils.js'
 import { Ai } from './ai'
 import { BaseClient, GithubClient } from './clients'
-import { mockdata } from './mockdata'
 
 dotenv.config()
 
@@ -32,10 +31,10 @@ const getClientInstance = () => {}
 
 export async function run(): Promise<void> {
   try {
-    const githubContext =
-      process.env.NODE_ENV === 'local' ? mockdata : github.context
+    const githubContext = github.context
     const pullRequestNumber = githubContext.payload.pull_request?.number
-    if (!pullRequestNumber || githubContext.payload) {
+
+    if (!pullRequestNumber || !githubContext.payload) {
       Logger.warn('Could not get pull request number from context, exiting')
       return
     }
