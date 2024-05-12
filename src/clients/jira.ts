@@ -1,14 +1,19 @@
 import { Version2Client } from 'jira.js'
-import * as core from '@actions/core'
 
 import { Logger } from '../utils'
 import { IBaseClient } from '../types/client'
 
+type Credentials = {
+  jiraEmail: string
+  jiraApiKey: string
+  jiraHost: string
+}
+
 export class JiraClient implements IBaseClient {
   client: Version2Client
 
-  constructor() {
-    this.client = this.initializeJiraClient()
+  constructor(credentials: Credentials) {
+    this.client = this.initializeJiraClient(credentials)
   }
 
   getTicketDetails = async (tickets: string[]): Promise<string[]> => {
@@ -28,15 +33,17 @@ export class JiraClient implements IBaseClient {
     return issues.filter(Boolean)
   }
 
-  private initializeJiraClient = () => {
-    const host = core.getInput('jiraHost') || process.env.JIRA_HOST || ''
+  private initializeJiraClient = ({
+    jiraHost,
+    jiraEmail,
+    jiraApiKey
+  }: Credentials) => {
     return new Version2Client({
-      host,
+      host: jiraHost,
       authentication: {
         basic: {
-          email: core.getInput('jiraEmail') || process.env.JIRA_EMAIL || '',
-          apiToken:
-            core.getInput('jiraApiKey') || process.env.JIRA_API_KEY || ''
+          email: jiraEmail,
+          apiToken: jiraApiKey
         }
       }
     })

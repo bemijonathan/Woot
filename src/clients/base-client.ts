@@ -1,26 +1,31 @@
 import { Logger } from '../utils'
+import * as core from '@actions/core'
 import { TrelloClient } from './trello'
 import { JiraClient } from './jira'
 
 export class BaseClient {
   static get client(): TrelloClient | JiraClient | null {
     const trelloCredentials = {
-      trelloPublicKey: process.env.TRELLO_PUBLIC_KEY,
-      trelloPrivateKey: process.env.TRELLO_PRIVATE_KEY
+      key:
+        core.getInput('trelloPublicKey') || process.env.TRELLO_PUBLIC_KEY || '',
+      token:
+        core.getInput('trelloPrivateKey') ||
+        process.env.TRELLO_PRIVATE_KEY ||
+        ''
     }
 
     if (this.validateCredentials(trelloCredentials)) {
-      return new TrelloClient()
+      return new TrelloClient(trelloCredentials)
     }
 
-    const jiraCredentials: Record<string, unknown> = {
-      jiraApiKey: process.env.JIRA_API_KEY,
-      jiraEmail: process.env.JIRA_EMAIL,
-      jiraHost: process.env.JIRA_HOST
-    }
+    const jiraCredentials = {
+      jiraApiKey: core.getInput('jiraApiKey') || process.env.JIRA_API_KEY || '',
+      jiraEmail: core.getInput('jiraEmail') || process.env.JIRA_EMAIL || '',
+      jiraHost: core.getInput('jiraHost') || process.env.JIRA_HOST || ''
+    } as const
 
     if (this.validateCredentials(jiraCredentials)) {
-      return new JiraClient()
+      return new JiraClient(jiraCredentials)
     }
 
     return null

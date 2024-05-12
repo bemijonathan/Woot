@@ -4,13 +4,12 @@ import { CommentHandler, getChanges, SummarizeChanges } from './steps'
 import dotenv from 'dotenv'
 import { Logger, Templates } from './utils.js'
 import { Ai } from './ai'
-import { BaseClient, GithubClient, JiraClient } from './clients'
+import { BaseClient, GithubClient } from './clients'
 import { mockdata } from './mockdata'
 
 dotenv.config()
 
 // instantiate clients
-const jiraClient = new JiraClient()
 const githubClient = new GithubClient()
 const commentsHandler = new CommentHandler(githubClient)
 const ai = new Ai()

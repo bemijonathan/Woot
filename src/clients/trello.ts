@@ -5,18 +5,13 @@ const fetch = require('node-fetch')
 
 const trelloBaseUrl: string = 'https://api.trello.com/1/cards'
 
-export class TrelloClient implements IBaseClient {
-  config: {
-    key: string
-    token: string
-  }
+type Credentials = {
+  key: string
+  token: string
+}
 
-  constructor() {
-    this.config = {
-      key: process.env.TRELLO_PRIVATE_KEY ?? '',
-      token: process.env.TRELLO_PRIVATE_TOKEN ?? ''
-    }
-  }
+export class TrelloClient implements IBaseClient {
+  constructor(private readonly config: Credentials) {}
 
   getTicketDetails = async (tickets: string[]) => {
     const issues = await Promise.all(
