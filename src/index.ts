@@ -31,10 +31,10 @@ export async function run(): Promise<void> {
   try {
     const githubContext = github.context
 
-    console.log(githubContext, 'githubContext')
+    console.log(githubContext.payload.pull_request?.number, 'githubContext')
     const pullRequestNumber = githubContext.payload.pull_request?.number
 
-    if (!pullRequestNumber || !githubContext.payload) {
+    if (!pullRequestNumber) {
       Logger.warn('Could not get pull request number from context, exiting')
       return
     }
