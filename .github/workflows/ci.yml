@@ -64,7 +64,7 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add dist -f
           git commit -m 'Add built dist directory'
-          git push origin main
+          git push origin
 
       - name: Test Local Action
         id: test-action
